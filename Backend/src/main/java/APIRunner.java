@@ -14,7 +14,9 @@ public class APIRunner
     public static void main(String[] args){
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(/*config*/)
-                .get("/", ctx -> {ctx.html("Hello"); })
+                .get("/", ctx -> {ctx.html("MAIN PAGE"); })
+                .get("/search", ctx -> {ctx.html("SEARCHED IMAGE"); }) // todo:
+                .get("/id", ctx -> {ctx.html("DESCRIPTION OF IMAGE"); }) // todo:
                 .start(5000);
     }
 
