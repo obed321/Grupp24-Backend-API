@@ -8,7 +8,7 @@ public class APIRunner
     private Gson gson = null;
 
     public APIRunner(){
-        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:nm:ss").create();
+        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     }
 
     public static void main(String[] args){
