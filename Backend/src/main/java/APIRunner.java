@@ -15,7 +15,7 @@ public class APIRunner
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(/*config*/)
                 .get("/", ctx -> {ctx.html("MAIN PAGE"); })
-                .get("/search", ctx -> {ctx.html("SEARCHED IMAGE"); }) // todo:
+                .get("/asset/{nasa_id}", ctx -> {ctx.html("retrieved planet image"); }) // todo:
                 .get("/id", ctx -> {ctx.html("DESCRIPTION OF IMAGE"); }) // todo:
                 .start(5000);
     }
