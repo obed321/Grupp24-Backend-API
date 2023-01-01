@@ -18,50 +18,29 @@ import java.util.stream.Collectors;
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
-public class APIRunner
-{
+public class APIRunner {
 
     private Gson gson = null;
 
-    public APIRunner(){
+    public APIRunner() {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create().start(5000);
-        app.get("/", ctx -> {ctx.html("MAIN PAGE"); });
-
-
-
-
-        app.get("metadata/{nasa_id}", ctx -> {
-            String id = ctx.pathParam("nasa_id");
-            String url = "https://images-api.nasa.gov/metadata/" + id;
-            try (InputStream inputStream = new URL(url).openStream()) {
-                String data = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
-                ctx.result(data);
-             //   ctx.header("Accept");
-                //ctx.header("Content-Type", "application/json");
-               Map map = new HashMap<String, String>();
-            //    map.put("id", id);
-                map.put("Description ", data + id);
-                ctx.json(map);
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-
+        app.get("/", ctx -> {ctx.html("MAIN PAGE");});
+        app.get("metadata/{nasa_id}", ctx -> {runner.getImageFromNasa(ctx);});
     }
-
-
-
-              //  app.get("/asset/{nasa_id}", ctx -> {ctx.html("retrieved planet image"); }); // todo:
-
-     //   Map map = new HashMap<String, String>();
-     //   map.put("Description", "Infomation " + ctx.pathParam("id"));
-     //   ctx.json(map);
+    //Denna metod tar fram hämtar data från endpoint utifrån id
+    public void getImageFromNasa(Context ctx) {
+        String id = ctx.pathParam("nasa_id");
+        String url = "https://images-api.nasa.gov/metadata/" + id;
+        try (InputStream inputStream = new URL(url).openStream()) {
+            String data = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
+            ctx.json(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+}
