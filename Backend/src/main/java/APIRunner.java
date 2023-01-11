@@ -33,6 +33,7 @@ public class APIRunner {
         });
 
         //Använd denna api om du vill få picture of the day från nasa
+
         app.get("nasa/apod", ctx -> {
             runner.getImageAndDescriptionFromNasaApodAPI(ctx);
         });
