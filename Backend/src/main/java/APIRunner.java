@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 import java.util.stream.Collectors;
+import io.javalin.plugin.bundled.CorsPluginConfig;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
 
@@ -25,24 +26,24 @@ public class APIRunner {
 
     public static void main(String[] args) {
         APIRunner runner = new APIRunner();
-        Javalin app = Javalin.create().start(5000);
-        app.get("/", ctx -> {
-            ctx.html("MAIN PAGE");
-        });
-        app.get("metadata/{nasa_id}", ctx -> {
+        Javalin app = Javalin.create(javalinConfig -> javalinConfig.plugins.enableCors(cors -> cors.add(CorsPluginConfig::anyHost))).start(8080);
+
+        app.get("nasa/metadata/{nasa_id}", ctx -> {
             runner.getImageLocation(ctx);
         });
 
         //Använd denna api om du vill få picture of the day från nasa
-        app.get("/<version>/apod", ctx -> {
+        app.get("nasa/apod", ctx -> {
             runner.getImageAndDescriptionFromNasaApodAPI(ctx);
         });
         //Dnna api hämtar bild
-        app.get("asset/{nasa_id}", ctx -> {
+        app.get("nasa/asset/{nasa_id}", ctx -> {
             runner.getImageFromNasa(ctx);
         });
 
-    app.get("/search", ctx -> {runner.searchNasa(ctx);});
+        app.get("nasa/search/{key}", ctx -> {
+            runner.searchNasa(ctx);
+        });
     }
 
 
@@ -97,20 +98,14 @@ public class APIRunner {
 
 
     public void searchNasa(Context ctx) {
-        String url = "https://images-api.nasa.gov/search/";
-        String apiKey = "qUiVgPByEvA7mORI5pfuIyhmmgIcJWNIqf6JYdF0";
-        Map<String, String> params = Map.of(
-                "api_key", apiKey,
-                "count", "1",
-                "hd", "true"
-        );
+        String searchKey = ctx.pathParam("key");
+
         try {
-            URL endpoint = new URL(url + "?" + params.entrySet().stream()
-                    .map(entry -> entry.getKey() + "=" + entry.getValue())
-                    .collect(Collectors.joining("&")));
-            HttpURLConnection connection = (HttpURLConnection) endpoint.openConnection();
-            connection.setRequestMethod("GET");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            URL url = new URL("https://images-api.nasa.gov/search?q="+ searchKey);
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+            http.setRequestMethod("GET");
+            System.out.println(http.getResponseMessage());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
             String response = reader.lines().collect(Collectors.joining("\n"));
             ctx.json(response);
         } catch (Exception e) {
