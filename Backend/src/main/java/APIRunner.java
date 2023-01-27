@@ -45,7 +45,33 @@ public class APIRunner {
         app.get("nasa/search/{key}", ctx -> {
             runner.searchNasa(ctx);
         });
+
+        app.get("track", ctx -> {
+            runner.getTrack(ctx);
+        });
     }
+
+    public void getTrack(Context ctx){
+        String auth = "9a0de48042b1453897f54ff0f8f989c6";
+        String url = "https://api.spotify.com/v1/search";
+
+        Map result = Unirest.get
+    }
+
+
+    /*
+    *   public void searchFunc(Context ctx){
+        String search = ctx.pathParam("string");
+
+        Map result = Unirest.get("https://images-api.nasa.gov/search")
+                .queryString("q", search)
+                .queryString("media_type", "image")
+                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
+                .getBody();
+        ctx.json(result);
+        Unirest.shutDown();
+    }
+    */
 
 
     //Denna api skickar dagen astronomi bild med text :)
