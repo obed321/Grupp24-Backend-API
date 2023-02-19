@@ -10,9 +10,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import io.javalin.plugin.bundled.CorsPluginConfig;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
 
@@ -28,22 +33,16 @@ public class APIRunner {
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(javalinConfig -> javalinConfig.plugins.enableCors(cors -> cors.add(CorsPluginConfig::anyHost))).start(8080);
 
-        app.get("nasa/metadata/{nasa_id}", ctx -> {
-            runner.getImageLocation(ctx);
-        });
-
-        //Använd denna api om du vill få picture of the day från nasa
-
-        app.get("nasa/apod", ctx -> {
-            runner.getImageAndDescriptionFromNasaApodAPI(ctx);
-        });
-        //Dnna api hämtar bild
-        app.get("nasa/asset/{nasa_id}", ctx -> {
-            runner.getImageFromNasa(ctx);
-        });
-
-        app.get("nasa/search/{key}", ctx -> {
+        app.get("search/{key}", ctx -> {
             runner.searchNasa(ctx);
+        });
+
+        app.get("authorize", ctx -> {
+            runner.authClient(ctx);
+        });
+
+        app.post("", ctx -> {
+            runner.getTokenKey(ctx);
         });
 
         app.get("/jokes/random", ctx -> {
@@ -58,6 +57,61 @@ public class APIRunner {
             ctx.json(data);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void getTokenKey(Context ctx){
+        HttpResponse<JsonNode> response = Unirest.post("http://localhost/post")
+                .header("accept", "application/json")
+                .queryString("apiKey", "123")
+                .field("parameter", "value")
+                .field("firstname", "Gary")
+                .asJson();
+    }
+
+    public void generateQuote(Context ctx){
+
+        try {
+            URL url = new URL("https://quotesondesign.com/wp-json/wp/v2/posts/?orderby=rand");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("GET");
+            System.out.println(http.getResponseMessage());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String response = reader.lines().collect(Collectors.joining("\n"));
+            ctx.json(response);
+        } catch (Exception e) {
+            ctx.status(500).result("An error occurred while calling the API");
+        }
+    }
+
+    public void authClient(Context ctx) {
+        String clientId = "38d9e5c35e734857b7e0f633c1fafd99";
+
+        Map result = Unirest.get("https://accounts.spotify.com/authorize")
+                .queryString("client_id", clientId)
+                .queryString("response_type", "code")
+                .queryString("redirect_uri", "http://localhost:8888/callback")
+                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
+                .getBody();
+        ctx.json(result);
+
+        Unirest.shutDown();
+    }
+
+
+    public void searchNasa(Context ctx) {
+        String searchKey = ctx.pathParam("key");
+
+        try {
+            URL url = new URL("https://images-api.nasa.gov/search?q=" + searchKey);
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("GET");
+            System.out.println(http.getResponseMessage());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String response = reader.lines().collect(Collectors.joining("\n"));
+            ctx.json(response);
+        } catch (Exception e) {
+            ctx.status(500).result("An error occurred while calling the API");
         }
     }
 
@@ -110,21 +164,4 @@ public class APIRunner {
 
     }
 
-
-
-    public void searchNasa(Context ctx) {
-        String searchKey = ctx.pathParam("key");
-
-        try {
-            URL url = new URL("https://images-api.nasa.gov/search?q="+ searchKey);
-            HttpURLConnection http = (HttpURLConnection)url.openConnection();
-            http.setRequestMethod("GET");
-            System.out.println(http.getResponseMessage());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
-            String response = reader.lines().collect(Collectors.joining("\n"));
-            ctx.json(response);
-        } catch (Exception e) {
-            ctx.status(500).result("An error occurred while calling the API");
-        }
-    }
 }
