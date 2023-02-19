@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.javalin.plugin.bundled.CorsPluginConfig;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
@@ -31,17 +33,26 @@ public class APIRunner {
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(javalinConfig -> javalinConfig.plugins.enableCors(cors -> cors.add(CorsPluginConfig::anyHost))).start(8080);
 
-        app.get("nasa/search/{key}", ctx -> {
+        app.get("{key}", ctx -> {
             runner.searchNasa(ctx);
         });
 
-        app.get("/authorize", ctx -> {
+        app.get("authorize", ctx -> {
             runner.authClient(ctx);
         });
 
-        app.get("quote", ctx -> {
-            runner.generateQuote(ctx);
+        app.post("", ctx -> {
+            runner.getTokenKey(ctx);
         });
+    }
+
+    public void getTokenKey(Context ctx){
+        HttpResponse<JsonNode> response = Unirest.post("http://localhost/post")
+                .header("accept", "application/json")
+                .queryString("apiKey", "123")
+                .field("parameter", "value")
+                .field("firstname", "Gary")
+                .asJson();
     }
 
     public void generateQuote(Context ctx){
