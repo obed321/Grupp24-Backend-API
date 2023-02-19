@@ -57,7 +57,7 @@ public class APIRunner {
     public void authClient(Context ctx) {
         String clientId = "38d9e5c35e734857b7e0f633c1fafd99";
 
-        Map result = Unirest.get("https://api.spotify.com/authorize")
+        Map result = Unirest.get("https://accounts.spotify.com/authorize")
                 .queryString("client_id", clientId)
                 .queryString("response_type", "code")
                 .queryString("redirect_uri", "http://localhost:8888/callback")
