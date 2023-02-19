@@ -44,6 +44,20 @@ public class APIRunner {
         app.post("", ctx -> {
             runner.getTokenKey(ctx);
         });
+
+        app.get("/jokes/random", ctx -> {
+            runner.getRandomJokes(ctx);
+        });
+    }
+
+    private void getRandomJokes(Context ctx) {
+        String url = "https://official-joke-api.appspot.com/jokes/random";
+        try (InputStream inputStream = new URL(url).openStream()) {
+            String data = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
+            ctx.json(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void getTokenKey(Context ctx){
