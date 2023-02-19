@@ -55,12 +55,12 @@ public class APIRunner {
     }
 
     public void authClient(Context ctx) {
-        String clientId = ctx.pathParam("38d9e5c35e734857b7e0f633c1fafd99");
+        String clientId = "38d9e5c35e734857b7e0f633c1fafd99";
 
         Map result = Unirest.get("https://api.spotify.com/authorize")
                 .queryString("client_id", clientId)
                 .queryString("response_type", "code")
-                .queryString("redirect_uri", "code")
+                .queryString("redirect_uri", "http://localhost:8888/callback")
                 .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
                 .getBody();
         ctx.json(result);
