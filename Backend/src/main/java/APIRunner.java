@@ -31,20 +31,6 @@ public class APIRunner {
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(javalinConfig -> javalinConfig.plugins.enableCors(cors -> cors.add(CorsPluginConfig::anyHost))).start(8080);
 
-        app.get("nasa/metadata/{nasa_id}", ctx -> {
-            runner.getImageLocation(ctx);
-        });
-
-        //Använd denna api om du vill få picture of the day från nasa
-
-        app.get("nasa/apod", ctx -> {
-            runner.getImageAndDescriptionFromNasaApodAPI(ctx);
-        });
-        //Dnna api hämtar bild
-        app.get("nasa/asset/{nasa_id}", ctx -> {
-            runner.getImageFromNasa(ctx);
-        });
-
         app.get("nasa/search/{key}", ctx -> {
             runner.searchNasa(ctx);
         });
@@ -52,6 +38,25 @@ public class APIRunner {
         app.get("/authorize", ctx -> {
             runner.authClient(ctx);
         });
+
+        app.get("quote", ctx -> {
+            runner.generateQuote(ctx);
+        });
+    }
+
+    public void generateQuote(Context ctx){
+
+        try {
+            URL url = new URL("https://quotesondesign.com/wp-json/wp/v2/posts/?orderby=rand");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("GET");
+            System.out.println(http.getResponseMessage());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String response = reader.lines().collect(Collectors.joining("\n"));
+            ctx.json(response);
+        } catch (Exception e) {
+            ctx.status(500).result("An error occurred while calling the API");
+        }
     }
 
     public void authClient(Context ctx) {
@@ -67,6 +72,24 @@ public class APIRunner {
 
         Unirest.shutDown();
     }
+
+
+    public void searchNasa(Context ctx) {
+        String searchKey = ctx.pathParam("key");
+
+        try {
+            URL url = new URL("https://images-api.nasa.gov/search?q=" + searchKey);
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("GET");
+            System.out.println(http.getResponseMessage());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String response = reader.lines().collect(Collectors.joining("\n"));
+            ctx.json(response);
+        } catch (Exception e) {
+            ctx.status(500).result("An error occurred while calling the API");
+        }
+    }
+
 
     //Denna api skickar dagen astronomi bild med text :)
     public void getImageAndDescriptionFromNasaApodAPI(Context ctx) {
@@ -116,20 +139,4 @@ public class APIRunner {
 
     }
 
-
-    public void searchNasa(Context ctx) {
-        String searchKey = ctx.pathParam("key");
-
-        try {
-            URL url = new URL("https://images-api.nasa.gov/search?q=" + searchKey);
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod("GET");
-            System.out.println(http.getResponseMessage());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
-            String response = reader.lines().collect(Collectors.joining("\n"));
-            ctx.json(response);
-        } catch (Exception e) {
-            ctx.status(500).result("An error occurred while calling the API");
-        }
-    }
 }
