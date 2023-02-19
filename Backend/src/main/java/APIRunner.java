@@ -33,7 +33,7 @@ public class APIRunner {
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(javalinConfig -> javalinConfig.plugins.enableCors(cors -> cors.add(CorsPluginConfig::anyHost))).start(8080);
 
-        app.get("{key}", ctx -> {
+        app.get("search/{key}", ctx -> {
             runner.searchNasa(ctx);
         });
 
