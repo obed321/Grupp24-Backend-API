@@ -45,8 +45,15 @@ public class APIRunner {
         app.get("nasa/search/{key}", ctx -> {
             runner.searchNasa(ctx);
         });
+
+        app.get("/authorize", ctx -> {
+            runner.authClient(ctx);
+        });
     }
 
+    public void authClient(Context ctx){
+
+    }
 
     //Denna api skickar dagen astronomi bild med text :)
     public void getImageAndDescriptionFromNasaApodAPI(Context ctx) {
