@@ -1,6 +1,5 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mashape.unirest.http.Unirest;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -16,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.javalin.plugin.bundled.CorsPluginConfig;
+import kong.unirest.Unirest;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
 
@@ -57,19 +57,15 @@ public class APIRunner {
     public void authClient(Context ctx) {
         String clientId = ctx.pathParam("38d9e5c35e734857b7e0f633c1fafd99");
 
-        try {
-            Map result = Unirest.get("https://api.spotify.com/authorize")
-                    .queryString("client_id", clientId)
-                    .queryString("response_type", "code")
-                    .queryString("redirect_uri", "code")
-                    .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
-                    .getBody();
-            ctx.json(result);
+        Map result = Unirest.get("https://api.spotify.com/authorize")
+                .queryString("client_id", clientId)
+                .queryString("response_type", "code")
+                .queryString("redirect_uri", "code")
+                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
+                .getBody();
+        ctx.json(result);
 
-            Unirest.shutdown();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Unirest.shutDown();
     }
 
     //Denna api skickar dagen astronomi bild med text :)
