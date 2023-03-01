@@ -48,6 +48,32 @@ public class APIRunner {
         app.get("/jokes/random", ctx -> {
             runner.getRandomJokes(ctx);
         });
+
+
+        app.get("track", ctx -> { /////////
+            runner.getTrack(ctx);
+        });
+    }
+
+    public void getTrack(Context ctx) { ///////////
+        String auth = "9a0de48042b1453897f54ff0f8f989c6";
+        String url = "https://api.spotify.com/v1/search";
+        String token;
+
+
+        if (ctx.req().getHeader("Authorization") == null) {
+            token = "";
+        } else {
+            token = ctx.req().getHeader("Authorization");
+        }
+
+        Map result = Unirest.get(url)
+                .header("Authorization", token)
+                .header("Content-Type", "application/json")
+                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
+                .getBody();
+        ctx.json(result);
+        Unirest.shutDown();
     }
 
     private void getRandomJokes(Context ctx) {
@@ -69,20 +95,6 @@ public class APIRunner {
                 .asJson();
     }
 
-    public void generateQuote(Context ctx){
-
-        try {
-            URL url = new URL("https://quotesondesign.com/wp-json/wp/v2/posts/?orderby=rand");
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod("GET");
-            System.out.println(http.getResponseMessage());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getInputStream()));
-            String response = reader.lines().collect(Collectors.joining("\n"));
-            ctx.json(response);
-        } catch (Exception e) {
-            ctx.status(500).result("An error occurred while calling the API");
-        }
-    }
 
     public void authClient(Context ctx) {
         String clientId = "38d9e5c35e734857b7e0f633c1fafd99";
