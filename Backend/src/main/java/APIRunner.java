@@ -47,13 +47,14 @@ public class APIRunner {
             runner.spotifyLogin(ctx);
         });*/
 
-        app.get("track", ctx -> {
-            runner.track(ctx);
+        app.get("track/{track}", ctx -> {
+            runner.spotifyLogin(ctx);
         });
     }
 
     public void spotifyLogin(Context ctx) { ///////////
         String url = "https://api.spotify.com/v1/search";
+        String search = ctx.pathParam("track");
 
 
         if (ctx.req().getHeader("Authorization") == null) {
@@ -63,6 +64,9 @@ public class APIRunner {
         }
 
         Map result = Unirest.get(url)
+                .queryString("q", search)
+                .queryString("type", "track")
+                .queryString("limit", 5)
                 .header("Authorization", token)
                 .header("Content-Type", "application/json")
                 .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
