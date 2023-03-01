@@ -24,6 +24,7 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 public class APIRunner {
 
     private Gson gson = null;
+    private String token;
 
     public APIRunner() {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -37,28 +38,17 @@ public class APIRunner {
             runner.searchNasa(ctx);
         });
 
-        app.get("authorize", ctx -> {
-            runner.authClient(ctx);
-        });
-
         app.post("", ctx -> {
             runner.getTokenKey(ctx);
         });
 
-        app.get("/jokes/random", ctx -> {
-            runner.getRandomJokes(ctx);
-        });
-
-
-        app.get("track", ctx -> { /////////
-            runner.getTrack(ctx);
-        });
+     /*   app.get("spotify", ctx -> { /////////
+            runner.spotifyLogin(ctx);
+        });*/
     }
 
-    public void getTrack(Context ctx) { ///////////
-        String auth = "9a0de48042b1453897f54ff0f8f989c6";
+    public void spotifyLogin(Context ctx) { ///////////
         String url = "https://api.spotify.com/v1/search";
-        String token;
 
 
         if (ctx.req().getHeader("Authorization") == null) {
@@ -76,17 +66,7 @@ public class APIRunner {
         Unirest.shutDown();
     }
 
-    private void getRandomJokes(Context ctx) {
-        String url = "https://official-joke-api.appspot.com/jokes/random";
-        try (InputStream inputStream = new URL(url).openStream()) {
-            String data = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
-            ctx.json(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void getTokenKey(Context ctx){
+    public void getTokenKey(Context ctx) {
         HttpResponse<JsonNode> response = Unirest.post("http://localhost/post")
                 .header("accept", "application/json")
                 .queryString("apiKey", "123")
@@ -94,22 +74,6 @@ public class APIRunner {
                 .field("firstname", "Gary")
                 .asJson();
     }
-
-
-    public void authClient(Context ctx) {
-        String clientId = "38d9e5c35e734857b7e0f633c1fafd99";
-
-        Map result = Unirest.get("https://accounts.spotify.com/authorize")
-                .queryString("client_id", clientId)
-                .queryString("response_type", "code")
-                .queryString("redirect_uri", "http://localhost:8888/callback")
-                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
-                .getBody();
-        ctx.json(result);
-
-        Unirest.shutDown();
-    }
-
 
     public void searchNasa(Context ctx) {
         String searchKey = ctx.pathParam("key");
