@@ -25,6 +25,7 @@ public class APIRunner {
 
     private Gson gson = null;
     private String token;
+    private String searchKey;
 
     public APIRunner() {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -54,8 +55,6 @@ public class APIRunner {
 
     public void spotifyLogin(Context ctx) { ///////////
         String url = "https://api.spotify.com/v1/search";
-        String search = ctx.pathParam("track");
-
 
         if (ctx.req().getHeader("Authorization") == null) {
             token = "";
@@ -64,7 +63,7 @@ public class APIRunner {
         }
 
         Map result = Unirest.get(url)
-                .queryString("q", search)
+                .queryString("q", searchKey)
                 .queryString("type", "track")
                 .queryString("limit", 5)
                 .header("Authorization", token)
@@ -89,7 +88,7 @@ public class APIRunner {
     }
 
     public void searchNasa(Context ctx) {
-        String searchKey = ctx.pathParam("key");
+        searchKey = ctx.pathParam("key");
 
         try {
             URL url = new URL("https://images-api.nasa.gov/search?q=" + searchKey);
