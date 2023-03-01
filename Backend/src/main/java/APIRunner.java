@@ -45,6 +45,10 @@ public class APIRunner {
      /*   app.get("spotify", ctx -> { /////////
             runner.spotifyLogin(ctx);
         });*/
+
+        app.get("track", ctx -> {
+            runner.track(ctx);
+        });
     }
 
     public void spotifyLogin(Context ctx) { ///////////
@@ -64,6 +68,10 @@ public class APIRunner {
                 .getBody();
         ctx.json(result);
         Unirest.shutDown();
+    }
+
+    public void track(Context ctx) {
+
     }
 
     public void getTokenKey(Context ctx) {
