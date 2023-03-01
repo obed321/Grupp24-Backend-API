@@ -42,7 +42,6 @@ public class APIRunner {
             runner.getTokenKey(ctx);
         });
 
-        System.out.println();
 
      /*   app.get("spotify", ctx -> { /////////
             runner.spotifyLogin(ctx);
