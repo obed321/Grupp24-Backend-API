@@ -16,9 +16,10 @@ import kong.unirest.Unirest;
 
 public class APIRunner {
 
-    private Gson gson = null;
+    private Gson gson = new Gson();
     private String token;
     private String searchKey;
+    private String clientId, clientSecret;
 
     public APIRunner() {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -33,11 +34,30 @@ public class APIRunner {
         });
 
         app.get("track/{track}", ctx -> {
-            runner.spotifyLogin(ctx);
+            runner.searchSpotify(ctx);
+        });
+
+        app.get("token", ctx -> {
+            runner.spot(ctx);
         });
     }
 
-    public void spotifyLogin(Context ctx) { ///////////
+    public void spot(Context ctx) {
+        clientId = "38d9e5c35e734857b7e0f633c1fafd99";
+        clientSecret = "c3b46ed9a4f04ea2951bbdc0ed54b6f7";
+        String url = "https://accounts.spotify.com/api/token";
+
+        Map result = Unirest.post(url)
+                .basicAuth(clientId,clientSecret)
+                .field("grant_type","client_credentials")
+                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
+                .getBody();
+        ctx.json(result);
+        Unirest.shutDown();
+    }
+
+
+    public void searchSpotify(Context ctx) { ///////////
         String url = "https://api.spotify.com/v1/search";
 
         if (ctx.req().getHeader("Authorization") == null) {
@@ -46,16 +66,21 @@ public class APIRunner {
             token = ctx.req().getHeader("Authorization");
         }
 
-        Map result = Unirest.get(url)
-                .queryString("q", searchKey)
-                .queryString("type", "track")
-                .queryString("limit", 5)
-                .header("Authorization", token)
-                .header("Content-Type", "application/json")
-                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
-                .getBody();
-        ctx.json(result);
-        Unirest.shutDown();
+        try {
+            Map result = Unirest.get(url)
+                    .queryString("q", searchKey)
+                    .queryString("type", "track")
+                    .queryString("limit", 5)
+                    .header("Authorization", ("Bearer " + token))
+                    .header("Content-Type", "application/json")
+                    .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
+                    .getBody();
+            ctx.json(result);
+            Unirest.shutDown();
+
+        } catch (Exception e) {
+            ctx.status(500).result("An error occurred while calling the API");
+        }
     }
 
     public void searchNasa(Context ctx) {
