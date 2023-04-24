@@ -70,7 +70,7 @@ public class APIRunner {
             Map result = Unirest.get(url)
                     .queryString("q", searchKey)
                     .queryString("type", "track")
-                    .queryString("limit", 5)
+                    .queryString("limit", 10)
                     .header("Authorization", ("Bearer " + token))
                     .header("Content-Type", "application/json")
                     .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
