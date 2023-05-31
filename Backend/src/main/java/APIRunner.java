@@ -89,7 +89,7 @@ public class APIRunner {
 
     public void playTrack(Context ctx){
         System.out.println("here");
-        String url = "https://api.spotify.com/v1/me/player/queue";
+        String url = "https://api.spotify.com/v1/me/player/play";
         String uri = "spotify:track:6ozxplTAjWO0BlUxN8ia0A";
 
         if (ctx.req().getHeader("Authorization") == null) {
@@ -97,13 +97,15 @@ public class APIRunner {
         } else {
             token = ctx.req().getHeader("Authorization");
         }
+        token = "BQBu9yjRZ2W26SV7E8VkNKDV2pALUH1xucLEScdp3I4qcstLdVxmcmKWtdN_YmwviCk0AB7IPUGU4ZQAvKX-azzJrrmlm4Whkh02XED0-AJTslD8nVE";
 
-        Map result = Unirest.post(url)
+        Map result = Unirest.put(url)
                 .queryString("uri", uri)
+                .header("Authorization", ("Bearer " + token))
+                .header("Content-Type", "application/json")
                 .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
                 .getBody();
         ctx.json(result);
-        System.out.println(result);
         Unirest.shutDown();
     }
 
