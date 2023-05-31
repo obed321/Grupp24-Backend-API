@@ -101,7 +101,6 @@ public class APIRunner {
         System.out.println(token);
 
         Map result = Unirest.put(url)
-                .queryString("uri", uri)
                 .header("Authorization", ("Bearer " + token))
                 .header("Content-Type", "application/json")
                 .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
