@@ -93,7 +93,7 @@ public class APIRunner {
         String uri = "spotify:track:6ozxplTAjWO0BlUxN8ia0A";
 
         if (ctx.req().getHeader("Authorization") == null) {
-            token = "BQBVg_D74s89hycLi8dW9aT8NjsUp3bozvp_GSzrLQuCHlUIJ16DRm-PaBrNimaLWopZvMbwbpfC0PXx6tS6l2m_DrqKgr6DrBVdzHThU2XxJR9xyXE";
+            token = "";
         } else {
             token = ctx.req().getHeader("Authorization");
         }
