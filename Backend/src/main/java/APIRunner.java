@@ -37,10 +37,6 @@ public class APIRunner {
             runner.searchSpotify(ctx);
         });
 
-        app.get("play", ctx -> {
-            runner.playTrack(ctx);
-        });
-
         app.get("token", ctx -> {
             runner.spot(ctx);
         });
@@ -85,28 +81,6 @@ public class APIRunner {
         } catch (Exception e) {
             ctx.status(500).result("An error occurred while calling the API");
         }
-    }
-
-    public void playTrack(Context ctx){
-        System.out.println("here");
-        String url = "https://api.spotify.com/v1/me/player/play";
-        String uri = "spotify:track:6ozxplTAjWO0BlUxN8ia0A";
-
-        if (ctx.req().getHeader("Authorization") == null) {
-            token = "";
-        } else {
-            token = ctx.req().getHeader("Authorization");
-        }
-
-        System.out.println(token);
-
-        Map result = Unirest.put(url)
-                .header("Authorization", ("Bearer " + token))
-                .header("Content-Type", "application/json")
-                .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
-                .getBody();
-        ctx.json(result);
-        Unirest.shutDown();
     }
 
     public void searchNasa(Context ctx) {
