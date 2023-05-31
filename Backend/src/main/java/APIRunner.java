@@ -103,6 +103,7 @@ public class APIRunner {
                 .asObject(i -> new Gson().fromJson(i.getContentReader(), HashMap.class))
                 .getBody();
         ctx.json(result);
+        System.out.println(result);
         Unirest.shutDown();
     }
 
