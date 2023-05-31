@@ -97,7 +97,8 @@ public class APIRunner {
         } else {
             token = ctx.req().getHeader("Authorization");
         }
-        token = "BQBu9yjRZ2W26SV7E8VkNKDV2pALUH1xucLEScdp3I4qcstLdVxmcmKWtdN_YmwviCk0AB7IPUGU4ZQAvKX-azzJrrmlm4Whkh02XED0-AJTslD8nVE";
+
+        System.out.println(token);
 
         Map result = Unirest.put(url)
                 .queryString("uri", uri)
